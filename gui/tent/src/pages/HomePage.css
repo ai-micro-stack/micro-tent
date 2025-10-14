@@ -1,0 +1,41 @@
+.homepage_wrapper {
+  background: #5d7398;
+}
+.clickable-area {
+  stroke: hsla(140, 100%, 50%, 100%);
+  fill: hwb(96 18% 35% / 0.863);
+}
+.clickable-area:hover {
+  stroke: hsla(335, 100%, 50%, 100%);
+  fill: hsla(335, 100%, 50%, 23%);
+}
+
+.blink-area-1 {
+  animation: blinker 1s linear infinite;
+}
+.blink-area-2 {
+  animation: blinker 1.25s linear infinite;
+}
+.blink-area-3 {
+  animation: blinker 1.5s linear infinite;
+}
+.blink-area-4 {
+  animation: blinker 1.75s linear infinite;
+}
+.blink-area-5 {
+  animation: blinker 2s linear infinite;
+}
+.tooltip-inner {
+  max-width: 1000px !important;
+  background-color: rgb(42, 97, 71);
+}
+ol {
+  display: inline-block;
+  text-align: left;
+}
+
+@keyframes blinker {
+  100% {
+    opacity: 0;
+  }
+}

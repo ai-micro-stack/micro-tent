@@ -1,0 +1,8 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "nomic-embed-text", "disabled": true },
+    { "id": 2, "role": "mxbai-embed-large", "disabled": true },
+    { "id": 3, "role": "bge-m3", "disabled": true }
+  ]
+}

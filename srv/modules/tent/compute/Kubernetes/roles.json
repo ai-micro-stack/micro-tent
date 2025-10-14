@@ -1,0 +1,7 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "Control-Plane" },
+    { "id": 2, "role": "Worker" }
+  ]
+}

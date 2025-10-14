@@ -1,0 +1,105 @@
+##########################################################################################
+# plugin name: "proxmox-ve_8.3-1"
+#-----------------------------------------------------------------------------------------
+# The plugin file name must be same as the OS iso file name with .plg as the extension
+#-----------------------------------------------------------------------------------------
+# The definition of the input arguments: 
+#     (1) os_name: iso file name without the extension of ".iso"
+#     (2) os_iso: full name of the iso file
+#     (3) os_iso_path: the full path the iso file location in host file system
+#     (4) os_root_path: the root folder of the boot-able os image generated from iso file
+#     (6) os_boot_path: the root folder of the os boot loader extracted from os iso file
+#     (7) os_conf_path: the full path of the optional kickstarter file for OS auto install
+#     (8) os_zip_path: the full path the zipped kickstarter file uploaded by user
+##########################################################################################
+echo "plugin: proxmox-ve_8.3-1"
+echo "os-name: $os_name"
+echo "os-iso: $iso_iso"
+echo "os-root: $os_root"
+echo "os-boot: $os_boot"
+echo "os_iso_path: $os_iso_path"
+echo "os_root_path: $os_root_path"
+echo "os_boot_path: $os_boot_path"
+echo "os_conf_path: $os_conf_path"
+echo "os_zip_path: $os_zip_path"
+
+##########################################################################################
+# function #1: parse_release_info(), to parse the OS release information
+#-----------------------------------------------------------------------------------------
+# description: a bash script function to parse os release info from official OS iso name
+# call format: 'parse_release_info $os_name $os_iso'
+# call result: define a list of shell enviroment vaiables about current os
+# param usage: the defined enviroment variables will be used in func #2 & #3 later
+##########################################################################################
+parse_release_info() {
+	echo "parse os release info ..."
+	brand=$(echo $1 | sed 's/[-.\_]/\n/g' | head -n 1)
+	isoVersion=$(echo $1 | sed 's/[-]/\n/g' | tail -n +2 | head -n 1)
+	isoEdition=$(echo $1 | sed 's/[-]/\n/g' | tail -n +2 | sed 's/[.]/\n/g' | head -n 1)
+	isoRelease=$(echo $1 | sed 's/[\_]/\n/g' | tail -n +2 | head -n 1)
+	isoArch=""
+	isoPublish="iso"
+	# isoInstaller="/boot"
+	# isoExtract="Full" # or "Boot"
+}
+
+##########################################################################################
+# function #2: populate_os_image(), to mount the iso file as a bootable image on host
+#-----------------------------------------------------------------------------------------
+# description: a bash script function to extract the content of iso file in a host folder
+# call format: 'populate_os_image $os_name $os_iso_path $os_root_path $os_boot_path $os_conf_path $os_zip_path'
+# call result: the generated the folder structure will be used as an os-image by pxeboot
+##########################################################################################
+populate_os_image() {
+	# method-1: directly extraction
+	sudo xorriso -osirrox on -indev $2 -extract / $3
+	# sudo 7z x -y -o$3/ $2
+
+	# method-2: mount then copy
+	# sudo rm -rf /mnt/$1
+	# sudo mkdir -pv /mnt/$1
+	# sudo mount -o loop,ro $2 /mnt/$1
+	# sudo mkdir -pv $3
+	# sudo rsync -rlptDSH --delete /mnt/$1/ $3/
+	# # sudo mkdir -pv $4
+	# # sudo rsync -vrlptDSH --delete /mnt/$1$isoInstaller/ $4/
+	# sudo umount /mnt/$1
+	# sudo rm -rf /mnt/$1
+
+	# extract kickstarter
+	if [ -f $6 ]; then
+		sudo chmod +w $5
+		echo "sudo 7z x -y -o$5/ $6"
+		sudo 7z x -y -o$5/ $6
+	fi
+}
+
+##########################################################################################
+# function #3: populate_boot_script(), to populate the pxe menu action for pxe client
+#-----------------------------------------------------------------------------------------
+# description: a bash script function to generate the ipxe script for ipxe boot menu
+# call format: 'populate_boot_script $os_name $os_iso $os_root $os_boot $os_conf'
+# call result: the populated script will fill into the pxeboot as the menu action for current os
+# presettings: some environment variables have been created in pxe-boot, they are available in this script
+#              1) "server-ip": value of the "dhcpNextServer" defined in the server conf
+#              2) "root_path": value of the "pxeRoot" defined in the server conf
+##########################################################################################
+populate_boot_script() {
+read -r -d '' munuAction << EOF
+# set os_name $1
+# set os_iso $2
+# set os_root $3
+# set os_boot $4
+set base_url http://\${server_ip}
+set iso_uri http://\${server_ip}/$2
+set root_uri http://\${server_ip}/$3
+#
+set boot_uri http://\${server_ip}/$4/boot
+set nfsroot \${server_ip}:\${root_path}/$3
+set opts vga=791 video=vesafb:ywrap,mtrr ramdisk_size=16777216 rw quiet
+kernel \${boot_uri}/linux26 initrd=initrd.img ro ip=dhcp netboot=nfs nfsroot=\${nfsroot} \${opts} splash=silent ---
+initrd \${boot_uri}/initrd.img
+boot
+EOF
+echo "${munuAction}"
+}

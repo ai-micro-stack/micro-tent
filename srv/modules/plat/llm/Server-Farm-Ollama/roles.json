@@ -1,0 +1,15 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "gemma3:270m" },
+    { "id": 2, "role": "GPT-4o", "disabled": true },
+    { "id": 3, "role": "DeepSeek", "disabled": true },
+    { "id": 4, "role": "Qwen", "disabled": true },
+    { "id": 5, "role": "Grok", "disabled": true },
+    { "id": 6, "role": "Llama3", "disabled": false },
+    { "id": 7, "role": "Claude", "disabled": true },
+    { "id": 8, "role": "Mistral", "disabled": true },
+    { "id": 9, "role": "Memini", "disabled": true },
+    { "id": 10, "role": "Command R", "disabled": true }
+  ]
+}

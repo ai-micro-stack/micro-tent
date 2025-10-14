@@ -1,0 +1,8 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "Manager" },
+    { "id": 2, "role": "Worker" },
+    { "id": 3, "role": "Hybrid" }
+  ]
+}

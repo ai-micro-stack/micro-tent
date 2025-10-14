@@ -1,0 +1,71 @@
+echo "Plugin: proxmox-ve_7.4-1"
+echo "os-name: $os_name"
+echo "os-iso: $iso_name"
+echo "os-root: $os_root"
+echo "os-boot: $os_boot"
+
+##########################################################################################
+# function #1: a bash function parse_release_info(), pass in 4 args listed at the top
+#-----------------------------------------------------------------------------------------
+# description: parse the os release info from the name iso file
+# call format: parse_release_info $1 $2 $3 $4
+# call result: to define shell vaiables for current os
+##########################################################################################
+parse_release_info() {
+	echo "parse os release info ..."
+	brand=$(echo $1 | sed 's/[-.\_]/\n/g' | head -n 1)
+	isoVersion=$(echo $1 | sed 's/[-]/\n/g' | tail -n +2 | head -n 1)
+	isoEdition=$(echo $1 | sed 's/[-]/\n/g' | tail -n +2 | sed 's/[.]/\n/g' | head -n 1)
+	isoRelease=$(echo $1 | sed 's/[\_]/\n/g' | tail -n +2 | head -n 1)
+	isoArch=""
+	isoPublish="iso"
+	isoInstaller="/boot"
+	isoExtract="Full" # or "Boot"
+}
+
+##########################################################################################
+# function #2: a bash function populate_os_image(), pass in 4 args listed at the top
+#-----------------------------------------------------------------------------------------
+# description: extract folder structure from the iso file for net boot using
+# call format: populate_os_image $1 $2 $3 $4
+# call result: to extract the folder structure & files into an os folder under os-images folder
+##########################################################################################
+populate_os_image() {
+	#sudo 7zz x -y -o$3/ $2
+	sudo mkdir -pv $3
+	mkdir -pv /tmp/proxmox-prep
+	cp $2 /tmp/proxmox-prep/
+	# bash ./pve-iso-2-pxe.sh /tmp/proxmox-prep/$2
+	bash -c "$_SCRIPT_DIR/pve-iso-2-pxe.sh /tmp/proxmox-prep/$1.iso"
+	# sudo cp /tmp/proxmox-prep/pxeboot/linux26 $3/
+	# sudo cp /tmp/proxmox-prep/pxeboot/initrd $3/
+	sudo rsync -a /tmp/proxmox-prep/pxeboot/ $3/
+	rm -rf /tmp/proxmox-prep
+}
+
+##########################################################################################
+# function #3: a bash populate_boot_script(), pass in 4 args listed at the top
+#-----------------------------------------------------------------------------------------
+# description: extract folder structure from the iso file to support the net boot
+# call format: populate_boot_script $1 $2 $3 $4
+# call result: to populate the pxe boot script for current os
+# presettings: two pxe variables have been created by the caller, they are available in pxe script
+#              1) "server-ip": valus of the "dhcpNextServer" defined in the server conf
+# 			   2) "root_path": value of the "pxeRoot" defined in the server conf
+##########################################################################################
+populate_boot_script() {
+read -r -d '' munuAction << EOF
+# \$1(os_name) => $1
+# \$2(os_iso) => $2
+# \$3(os_root) => $3
+# \$4(os_boot) => $4
+set os_root $3
+set nfsroot \${server_ip}:\${root_path}/\${os_root}
+set opts vga=791 video=vesafb:ywrap,mtrr ramdisk_size=20000000 rw quiet
+kernel http://\${server_ip}/\${os_root}/linux26
+initrd http://\${server_ip}/\${os_root}/initrd
+imgargs linux26 initrd=initrd boot=boot maybe-ubiquity netboot=nfs ip=dhcp nfsroot=\${nfsroot} \${opts} splash=silent ---
+boot
+EOF
+echo "${munuAction}"
+}

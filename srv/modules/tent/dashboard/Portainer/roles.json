@@ -1,0 +1,7 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "Portainer" }
+  ],
+  "compatibility": ["kubernetes", "swarm"]
+}

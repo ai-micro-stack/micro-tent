@@ -1,0 +1,7 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "Master" }
+  ],
+  "compatibility": ["kubernetes"]
+}

@@ -1,0 +1,7 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "dhcp-server" },
+    { "id": 2, "role": "dhcp-proxy" }
+  ]
+}

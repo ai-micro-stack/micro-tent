@@ -1,0 +1,8 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "Milvus" },
+    { "id": 3, "role": "Qdrant" },
+    { "id": 4, "role": "Weaviate" }
+  ]
+}

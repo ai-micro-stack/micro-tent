@@ -1,0 +1,11 @@
+{
+  "roles": [
+    { "id": 0, "role": "(None)" },
+    { "id": 1, "role": "Chroma", "disabled": true },
+    { "id": 2, "role": "Faiss", "disabled": true },
+    { "id": 3, "role": "Milvus" },
+    { "id": 4, "role": "Qdrant" },
+    { "id": 5, "role": "Weaviate" },
+    { "id": 6, "role": "pgvector" }
+  ]
+}

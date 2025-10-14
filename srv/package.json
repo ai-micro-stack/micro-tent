@@ -1,0 +1,43 @@
+{
+  "name": "api-of-pxe-manager",
+  "version": "1.0.0",
+  "description": "backend of the Micro Tent",
+  "main": "server.js",
+  "scripts": {
+    "test": "test",
+    "server": "node server.js",
+    "prod": "NODE_ENV=production node server.js"
+  },
+  "keywords": [
+    "pxeboot",
+    "api",
+    "manager"
+  ],
+  "author": "data-cooker",
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "md5": "^2.3.0",
+    "module-alias": "^2.2.3",
+    "path": "^0.12.7",
+    "ping": "^0.4.4",
+    "sequelize": "^6.37.6",
+    "socket.io": "^4.8.1",
+    "sqlite3": "^5.1.7",
+    "ssh2": "^1.16.0"
+  },
+  "_moduleAliases": {
+    "@root": ".",
+    "@modules": "./modules/tent",
+    "@database": "./database",
+    "@middleware": "./middleware",
+    "@models": "./models",
+    "@routes": "./routes",
+    "@consts": "./consts",
+    "@utils": "./utils"
+  }
+}

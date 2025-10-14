@@ -1,0 +1,88 @@
+echo "Module: debian"
+echo "os-name: $os_name"
+echo "os-iso: $iso_name"
+echo "os-root: $os_root"
+echo "os-boot: $os_boot"
+
+##########################################################################################
+# function #1: a bash function parse_release_info(), pass in 4 args listed at the top
+#-----------------------------------------------------------------------------------------
+# description: parse the os release info from the name iso file
+# call format: parse_release_info $1 $2 $3 $4
+# call result: to define shell vaiables for current os
+##########################################################################################
+parse_release_info() {
+	echo "parse os release info ..."
+	brand=$(echo $1 | sed 's/[-.\_]/\n/g' | head -n 1)
+	isoVersion=$(echo $1 | sed 's/[.]/\n/g' | head -n 1)
+	isoEdition=$isoVersion
+	isoRelease=$(echo $1 | sed 's/[-]/\n/g' | tail -n +2 | head -n 1)
+	isoArch=$(echo $1 | sed 's/[-]/\n/g' | tail -n +3 | head -n 1)
+	isoPublish=$(echo $1 | sed 's/[-]/\n/g' | tail -n +4 | head -n 1)
+	isoInstaller="/debian-installer/amd64"
+	isoExtract="Full" # or "Boot"
+}
+
+##########################################################################################
+# function #2: a bash function populate_os_image(), pass in 4 args listed at the top
+#-----------------------------------------------------------------------------------------
+# description: extract folder structure from the iso file for net boot using
+# call format: populate_os_image $1 $2 $3 $4
+# call result: to extract the folder structure & files into an os folder under os-images folder
+##########################################################################################
+populate_os_image() {
+	# sudo 7zz x -y -o$3/ $2
+	sudo mkdir -pv /mnt/$1
+	sudo mount -o loop $2 /mnt/$1
+	sudo mkdir -pv $3
+	sudo rsync -rlptDSH --delete /mnt/$1/ $3/
+	sudo mkdir -pv $4
+	sudo rsync -vrlptDSH --delete /mnt/$1$isoInstaller/ $4/
+	sudo umount /mnt/$1
+	sudo rm -rf /mnt/$1
+
+	pushd $3
+	# Following url lists the example-2 of the debian installer project, which is the original bash snepit that we customized as this module.
+	# https://wiki.debian.org/DebianInstaller/NetbootFirmware#Example_.232_:_Download_netboot.2C_add_debs_from_firmware.cpio.gz_.28PXE_ready.29
+	sudo wget http://ftp.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/netboot.tar.gz
+	# sudo tar -xzvf netboot.tar.gz
+	sudo tar -xzf netboot.tar.gz
+	sudo rm netboot.tar.gz
+	sudo ln -s debian-installer/amd64/grubx64.efi .
+	sudo ln -s debian-installer/amd64/grub .
+	cd $3/debian-installer/amd64
+	sudo [ -f initrd.gz.orig ] || sudo mv initrd.gz initrd.gz.orig
+	sudo [ -f firmware.cpio.gz ] || sudo wget https://cdimage.debian.org/cdimage/firmware/bookworm/current/firmware.cpio.gz
+	sudo bash -c 'cat initrd.gz.orig firmware.cpio.gz > initrd.gz'
+	popd		
+}
+
+##########################################################################################
+# function #3: a bash populate_boot_script(), pass in 4 args listed at the top
+#-----------------------------------------------------------------------------------------
+# description: extract folder structure from the iso file to support the net boot
+# call format: populate_boot_script $1 $2 $3 $4
+# call result: to populate the pxe boot script for current os
+# presettings: two pxe variables have been created by the caller, they are available in pxe script
+#              1) "server-ip": valus of the "dhcpNextServer" defined in the server conf
+# 			   2) "root_path": value of the "pxeRoot" defined in the server conf
+##########################################################################################
+populate_boot_script() {
+cat << EOF
+# \$1(os_name) => $1
+# \$2(os_iso) => $2
+# \$3(os_root) => $3
+# \$4(os_boot) => $4
+menuentry '$1 (ISO)' {
+  insmod ext2
+  # set isofile=\${iso_uri}
+  # loopback loop (hd0,5)$isofile
+  linux $1/vmlinuz boot=live findiso=http://$dhcpNextServer/$3
+  initrd $1/initrd.gz
+}
+menuentry '$1' --class debian --class gnu-linux --class gnu --class os {
+  linux $1/linux initrd=initrd.gz ip=dhcp inst.repo=http://$dhcpNextServer/$3 inst.stage2=http://$dhcpNextServer/$3
+  initrd $1/initrd.gz
+}
+EOF
+}
