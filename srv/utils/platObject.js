@@ -65,6 +65,7 @@ const PopulatePlatObject = (currentPlat, platMembers) => {
         },
         storage: {
           storage_cluster: c.storage_cluster,
+          storage_cluster_share: c.storage_cluster_share,
           storage_cluster_type: c.storage_cluster_type,
           storage_nodes: c.storage_nodes,
         },
@@ -88,8 +89,13 @@ const PopulatePlatObject = (currentPlat, platMembers) => {
     // Populate plat Id & name
     confObject.plat_id = currentPlat.id;
     confObject.plat_name = currentPlat.plat_name;
+    confObject.embedding.model_server =
+      currentPlat.embedding_model_server ?? "(None)";
     confObject.embedding.model_store = currentPlat.embedding_model_store ?? "";
+    confObject.llm.model_server = currentPlat.llm_model_server ?? "(None)";
     confObject.llm.model_store = currentPlat.llm_model_store ?? "";
+    confObject.vectordb.data_server =
+      currentPlat.vectordb_data_server ?? "(None)";
     confObject.vectordb.data_store = currentPlat.vectordb_data_store ?? "";
 
     // Populate plat resource

@@ -30,7 +30,29 @@ const Plat = db.context.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    is_locked: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    build_auto_lock: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+
+    // detail conf
+    embedding_model_server: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     embedding_model_store: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    llm_model_server: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -38,12 +60,12 @@ const Plat = db.context.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    vectordb_data_store: {
+    vectordb_data_server: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    is_active: {
-      type: DataTypes.BOOLEAN,
+    vectordb_data_store: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },

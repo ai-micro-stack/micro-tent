@@ -29,7 +29,7 @@ async function setDefault() {
 
 router.get(
   "/data",
-  verifyToken,
+  // verifyToken,
   // grantAccess([1, 2, 3, 9]),
   async (req, res) => {
     await setDefault();
@@ -101,6 +101,7 @@ router.get(
               llm_model: c.llm_model,
               compute_cluster_type: c.compute_cluster_type,
               storage_cluster_type: c.storage_cluster_type,
+              storage_cluster_share: c.storage_cluster_share,
               balancer_cluster_type: c.balancer_cluster_type,
               Hosts: c.Hosts,
             };
@@ -111,10 +112,15 @@ router.get(
             plat_note: p.plat_note,
             plat_type: p.plat_type,
             plat_vip: p.plat_vip,
-            embedding_model_store: p.embedding_model_store,
-            llm_model_store: p.llm_model_store,
-            vectordb_data_store: p.vectordb_data_store,
             is_active: p.is_active,
+            is_locked: p.is_locked,
+            build_auto_lock: p.build_auto_lock,
+            embedding_model_server: p.embedding_model_server,
+            embedding_model_store: p.embedding_model_store,
+            llm_model_server: p.llm_model_server,
+            llm_model_store: p.llm_model_store,
+            vectordb_data_server: p.vectordb_data_server,
+            vectordb_data_store: p.vectordb_data_store,
             createdAt: p.createdAt,
             updatedAT: p.updatedAt,
             Clusters: clusters,
