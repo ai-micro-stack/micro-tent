@@ -64,6 +64,7 @@ router.post("/conf", verifyToken, grantAccess([1, 2]), (req, res) => {
 router.post("/build", verifyToken, grantAccess([1, 2]), async (req, res) => {
   console.log("The plat-build-process is called.");
   // const adminHostIpv4 = req.body.Subnet.cidr.split("/")[0];
+  const taskTarget = req.body.Target; // target: "server" or "model"
   const currentPlat = req.body.Plat;
   const platMembers = req.body.Clusters;
   const taskUser = req.user.userId || "unknown";
@@ -102,14 +103,22 @@ router.post("/build", verifyToken, grantAccess([1, 2]), async (req, res) => {
     // const moduleTypes = ["llm"];
 
     moduleTypes.forEach((area) => {
+      // area: embedding, vectordb ot llm
       let members = taskObj[area].members;
       if (taskObj[area].members.length === 0) return;
       for (let i = 0; i < members.length; i++) {
-        let module = members[i][area + "_module"];
+        // member: Kubernets. Server-Farm or Swarm
+        let member = members[i];
+        let module = member[area + "_module"];
         if (module === "(None)") return;
+        // to set taskTarget details
+        let taskDetails = JSON.stringify({
+          target: taskTarget,
+          hci_id: member.hci_id,
+        });
         const taskData = {
           type: "ssh2",
-          cmd: `node ${platDir}/${area}/${module}/index.cjs ${taskPayload}`,
+          cmd: `node ${platDir}/${area}/${module}/index.cjs ${taskPayload} '${taskDetails}'`,
           cwd: `./srv`,
         };
         AddTask(taskUser, JSON.stringify(taskData));

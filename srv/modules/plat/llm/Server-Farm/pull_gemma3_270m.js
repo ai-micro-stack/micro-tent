@@ -1,18 +1,14 @@
 require("module-alias/register");
 const { ssh2Stream } = require("@utils/taskSsh2Stream");
 
-async function pull_Gemma3_270m(confObj) {
-  const user = confObj.serviceAccount;
-  const nodes = confObj.balancer.nodes;
-  const members = confObj.balancer.members;
-  const workers = confObj.compute.reqtakers ?? confObj.compute.nodes;
-  // .filter((n) => !managers.includes(n));
-
-  if (!(members.length && workers.length)) return;
+async function pull_Gemma3_270m(cluster, serviceAccount) {
+  const user = serviceAccount;
+  const nodes = cluster.nodes.map((n) => n.ip);
+  const spares = cluster.spares ?? [];
 
   if (!nodes.length) return;
 
-  const llm_model_name = confObj.llm.llm_model_name;
+  const llm_model_name = cluster.llm_model_name;
   let node = "";
   let cmds = [];
   // let cmd = "";
@@ -29,8 +25,9 @@ async function pull_Gemma3_270m(confObj) {
       return cmd.length > 0;
     });
 
-  for (let idx in workers) {
-    node = workers[idx];
+  for (let idx in nodes) {
+    node = nodes[idx];
+    if (spares.includes(node)) return;
     console.log("###############################################");
     console.log("## ssh2 session with: " + node);
     console.log("###############################################");

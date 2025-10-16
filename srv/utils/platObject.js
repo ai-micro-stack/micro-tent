@@ -36,7 +36,7 @@ const PopulatePlatObject = (currentPlat, platMembers) => {
     vectordb: {},
     llm: {},
     // dashboard: {},
-    // serviceAccount: {},
+    serviceAccount: {},
   };
   try {
     const platClusters = platMembers.map((c) => {
@@ -94,7 +94,7 @@ const PopulatePlatObject = (currentPlat, platMembers) => {
     confObject.embedding.model_store = currentPlat.embedding_model_store ?? "";
     confObject.llm.model_server = currentPlat.llm_model_server ?? "(None)";
     confObject.llm.model_store = currentPlat.llm_model_store ?? "";
-    confObject.vectordb.data_server =
+    confObject.vectordb.model_server =
       currentPlat.vectordb_data_server ?? "(None)";
     confObject.vectordb.data_store = currentPlat.vectordb_data_store ?? "";
 
@@ -190,6 +190,10 @@ const PopulatePlatObject = (currentPlat, platMembers) => {
 
     // Populate plat dashboard
     confObject.dashboard = {};
+
+    confObject.serviceAccount.username = `${CLUSTER_USER}`;
+    confObject.serviceAccount.password = `${CLUSTER_PASS}`;
+    confObject.serviceAccount.certname = `${CLUSTER_CERT}`;
 
     return { code: 0, data: confObject };
   } catch (err) {

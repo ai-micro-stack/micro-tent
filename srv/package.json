@@ -32,7 +32,7 @@
   },
   "_moduleAliases": {
     "@root": ".",
-    "@modules": "./modules/tent",
+    "@modules": "./modules",
     "@database": "./database",
     "@middleware": "./middleware",
     "@models": "./models",
