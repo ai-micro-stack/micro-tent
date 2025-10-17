@@ -1,5 +1,6 @@
 require("module-alias/register");
 const fs = require("fs");
+const path = require('path');
 const { step1Ollma } = require("@modules/plat/llm/Server-Farm/step1_ollama");
 const { step2Service } = require("@modules/plat/llm/Server-Farm/step2_service");
 //
@@ -8,12 +9,24 @@ const { pull_all_MiniLM_L6_v2 } = require("./pull_all_minilm_l6_v2");
 // const { pull_mxbai_embed_large } = require("./pull_mxbai_embed_large");
 // const { pull_bge_m3 } = require("./pull_bge_m3");
 
-async function ModuleHandler(confObj, taskDetails) {
+async function ModuleHandler(confObj, taskDetails, trackerPath) {
   // console.log(confObj, null, 4);
   const serviceAccount = confObj.serviceAccount;
-  // const clusters = confObj.resource.clusters;
   const members = confObj.embedding.members;
+  // const clusters = confObj.resource.clusters;
   const modelServer = confObj.embedding.model_server;
+
+  function getTaskTracker(trackerPath) {
+    let taskTracker = {ollama: 0};
+    try {
+      const trackerText = fs.readFileSync(trackerPath, "utf8");
+      taskTracker = JSON.parse(trackerText);
+    } catch {
+      console.log("Task tracker is not available. Run this task ...")
+      fs.writeFileSync(trackerPath, JSON.stringify(taskTracker));
+    }
+    return taskTracker;
+  }
 
   let cluster = members.find((m) => m.hci_id === taskDetails.hci_id);
   if (!cluster) {
@@ -27,8 +40,14 @@ async function ModuleHandler(confObj, taskDetails) {
     );
     switch (modelServer.toLowerCase()) {
       case "ollama":
-        await step1Ollma(cluster, serviceAccount);
-        await step2Service(cluster, serviceAccount);
+        const taskTracker = getTaskTracker(trackerPath)
+        if (Date.now() - taskTracker.ollama > 86400000) {
+          await step1Ollma(cluster, serviceAccount);
+          await step2Service(cluster, serviceAccount);
+          taskTracker.ollama = Date.now();
+          fs.writeFileSync(trackerPath, JSON.stringify(taskTracker));
+        }
+        else console.log("Ollama is installed not long. Remove the task tracker to force redo.");
         break;
       default:
         console.log("Unsuppoted model server ...");
@@ -61,10 +80,10 @@ async function ModuleHandler(confObj, taskDetails) {
 if (process.argv.length < 4) {
   console.log("Missing conf file argument. Quit task process ...");
 } else {
-  console.log(process.argv[3]);
   const confObjPath = process.argv[2];
   const taskDetails = JSON.parse(process.argv[3]);
+  const trackerPath = path.join(path.dirname(confObjPath),"taskTracker.json");
   const confObject = fs.readFileSync(confObjPath, "utf8");
   const confObj = JSON.parse(confObject);
-  ModuleHandler(confObj, taskDetails);
+  ModuleHandler(confObj, taskDetails, trackerPath);
 }

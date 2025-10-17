@@ -11,9 +11,6 @@ const { AddTask } = require("@utils/taskQueue");
 const { pluginModuleTypes } = require("@consts/constant");
 const { verifyToken, grantAccess } = require("@middleware/authMiddleware");
 
-// const moduleDatabase = path.join(__dirname, "../modules/plat", `module.mdb`);
-// const moduleTypes = ["embedding", "vectordb", "llm"];
-// const stack = "plat";
 const stack = "plat";
 
 router.get("/modules", async (req, res) => {
@@ -33,14 +30,12 @@ router.get("/modules", async (req, res) => {
 });
 
 router.post("/conf", verifyToken, grantAccess([1, 2]), (req, res) => {
-  // const adminHostIpv4 = req.body.Subnet.cidr.split("/")[0];
   const currentPlat = req.body.Plat;
   const platMembers = req.body.Clusters;
   const taskUser = req.user.userId || "unknown";
 
   try {
     const confObject = PopulatePlatObject(
-      // adminHostIpv4,
       currentPlat,
       platMembers
     );
@@ -63,7 +58,6 @@ router.post("/conf", verifyToken, grantAccess([1, 2]), (req, res) => {
 
 router.post("/build", verifyToken, grantAccess([1, 2]), async (req, res) => {
   console.log("The plat-build-process is called.");
-  // const adminHostIpv4 = req.body.Subnet.cidr.split("/")[0];
   const taskTarget = req.body.Target; // target: "server" or "model"
   const currentPlat = req.body.Plat;
   const platMembers = req.body.Clusters;
@@ -71,7 +65,6 @@ router.post("/build", verifyToken, grantAccess([1, 2]), async (req, res) => {
 
   try {
     const confObject = PopulatePlatObject(
-      // adminHostIpv4,
       currentPlat,
       platMembers
     );
@@ -81,26 +74,11 @@ router.post("/build", verifyToken, grantAccess([1, 2]), async (req, res) => {
         .send({ status: JSON.stringify(confObject.data, null, 2) });
     }
 
-    // const taskObj = confObject.data;
-    // try {
-    //   const taskUser = req.user.userId || "unknown";
-    //   const taskData = {
-    //     type: "ssh2",
-    //     cmd: "ls *.js",
-    //     cwd: `./srv/modules/tent/plat/${taskObj.compute.type}`,
-    //   };
-    //   AddTask(taskUser, JSON.stringify(taskData));
-    // } catch (err) {
-    //   console.log(err);
-    // }
-    // return res.status(201).send({ status: "MOUNT_COMPLETE_SUCCESSFULLY" });
-
     const taskObj = confObject.data;
     const taskPayload = `${confDir}/plat-${currentPlat.id.toString()}_${taskUser}.payload`;
     fs.writeFileSync(taskPayload, JSON.stringify(taskObj));
 
     const moduleTypes = pluginModuleTypes[`${stack}Plugin`];
-    // const moduleTypes = ["llm"];
 
     moduleTypes.forEach((area) => {
       // area: embedding, vectordb ot llm
@@ -111,7 +89,7 @@ router.post("/build", verifyToken, grantAccess([1, 2]), async (req, res) => {
         let member = members[i];
         let module = member[area + "_module"];
         if (module === "(None)") return;
-        // to set taskTarget details
+        // set task target details
         let taskDetails = JSON.stringify({
           target: taskTarget,
           hci_id: member.hci_id,

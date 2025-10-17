@@ -29,7 +29,7 @@ async function setDefault() {
 
 router.get(
   "/data",
-  // verifyToken,
+  verifyToken,
   // grantAccess([1, 2, 3, 9]),
   async (req, res) => {
     await setDefault();
