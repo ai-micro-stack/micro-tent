@@ -412,16 +412,22 @@ _For more examples, please refer to the [Documentation](https://www.micro-stack.
 
 ## Roadmap
 
-- [x] Add the Gluster as the option to support hyper convergence storage cluster
-- [x] Add the Docker Swarm as the option to support the computing cluster
-- [x] Add thh KeepAlived as the load balancer to support the high availability
-- [x] Add the Portainer as the option for cluster monitor and management tool
-- [x] Add the Ceph as the option tp support hyper convergence storage cluster
-- [ ] Add the Kubernetes as the option to support the computing cluster
+- [x] Core Hyperconvergence Environment setup and deployment
+- [x] Add distributed storage system module to serve the convergence storage to cluster
+  - [x] Gluster distributed file system
+  - [x] Ceph distributed file system (microceph)
+- [x] Add containerized virtualization module to serve the computing resources
+  - [x] Swarm (from docker)
+  - [x] Kubernetes (k8s)
+  - [x] Server Farm (member blades config)
+- [x] Add the high availability and load balancing module
+  - [x] KeepAlived as high availability router
+  - [x] KeepAlived as load balancing router
+- [x] Add the dashboard, monitoring and managemnt tools
+  - [x] Portainer as the cluster monitoring and management tool
+  - [ ] Granfana as the dashboard & monitoring system
 - [ ] Write the user guide document
-- [ ] Multi-language Support
-  - [ ] Chinese
-  - [ ] Spanish
+- [ ] Containerized application deployment
 
 See the [open issues](https://github.com/ai-micro-stack/maintainer/micro-tent/issues) for a full list of proposed features (and known issues).
 
