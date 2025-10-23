@@ -412,7 +412,7 @@ _For more examples, please refer to the [Documentation](https://www.micro-stack.
 
 ## Roadmap
 
-- [x] Core Hyperconvergence Environment setup and deployment
+- [x] Core Hyperconvergence cluster setup and deployment
 - [x] Add distributed storage system module to serve the convergence storage to cluster
   - [x] Gluster distributed file system
   - [x] Ceph distributed file system (microceph)
