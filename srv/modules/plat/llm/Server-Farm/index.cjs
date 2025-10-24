@@ -19,7 +19,7 @@ async function ModuleHandler(confObj, taskDetails, trackerPath) {
   // console.log(confObj, null, 4);
   const serviceAccount = confObj.serviceAccount;
   const members = confObj.llm.members;
-  // const clusters = confObj.resource.clusters;
+  const clusters = confObj.resource.clusters;
   const modelServer = confObj.llm.model_server;
 
   function getTaskTracker(trackerPath) {
@@ -34,11 +34,16 @@ async function ModuleHandler(confObj, taskDetails, trackerPath) {
     return taskTracker;
   }
 
-  let cluster = members.find((m) => m.hci_id === taskDetails.hci_id);
-  if (!cluster) {
+  let member = members.find((m) => m.hci_id === taskDetails.hci_id);
+  if (!member) {
     console.log("Can't find the target cluster.");
     return;
   }
+  let resource = clusters.find((m) => m.hci_id === taskDetails.hci_id);
+  cluster = {
+    ...member, 
+    storage_share: resource.storage.storage_cluster_share
+  };
 
   if (taskDetails.target === "server" && modelServer !== "(None)") {
     console.log(

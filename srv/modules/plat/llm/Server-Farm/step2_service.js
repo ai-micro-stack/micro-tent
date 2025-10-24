@@ -6,7 +6,7 @@ async function step2Service(cluster, serviceAccount) {
   const nodes = cluster.nodes.map((n) => n.ip);
   const spares = cluster.spares ?? [];
   // const members = cluster.balancer.members;
-  const storage_share = cluster.storage.global_share ?? "";
+  const storage_share = cluster.storage_share ?? "";
 
   if (!nodes.length) return;
 
