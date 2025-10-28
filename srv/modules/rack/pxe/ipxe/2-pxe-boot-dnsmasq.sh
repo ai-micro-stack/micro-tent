@@ -193,7 +193,7 @@ pushd /etc
 # Install dnsmasq to support DHCP_PROXY & DNS
 sudo apt install dnsmasq -y
 sudo [ -f dnsmasq.conf.backup ] || sudo mv -v dnsmasq.conf dnsmasq.conf.backup
-sudo bash -c "cat <<EOF > /etc/dnsmasq.conf
+sudo bash -c "cat <<EOF > /etc/dnsmasq.d/dnsmasq.conf`
 ###########################################
 ## Interface Binding
 ###########################################

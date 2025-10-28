@@ -20,7 +20,7 @@ async function step2Config(confObj, sections, replacements) {
   const dhcpDnsList = confObj.pxe_subnet.dhcpDnsList;
   const dhcpDomain = confObj.pxe_subnet.dhcpDomain;
 
-  // const sourcePath = "/etc/dnsmasq.conf";
+  // const sourcePath = "/etc/dnsmasq.d/dnsmasq.conf";
   const sourcePath = path.join(__dirname, `./dnsmasq.conf.temp`);
   const targetPath = "/tmp/dnsmasq.conf";
 
@@ -33,7 +33,10 @@ async function step2Config(confObj, sections, replacements) {
       try {
         sourceData = fs.readFileSync(sourcePath, "utf8");
       } catch (secondErr) {
-        sourceData = fs.readFileSync("/etc/dnsmasq.conf", "utf8");
+        let sourceData = "";
+        if (fs.existsSync("/etc/dnsmasq.d/dnsmasq.conf")) {
+          sourceData = fs.readFileSync("/etc/dnsmasq.d/dnsmasq.conf", "utf8");
+        }
       }
     } else {
       sourceData = null;
@@ -69,8 +72,8 @@ async function step2Config(confObj, sections, replacements) {
   const cmds_all = [
     `sudo su`,
     `systemctl stop dnsmasq`,
-    `rm -f /etc/dnsmasq.conf`,
-    `yes | cp -rf /tmp/dnsmasq.conf /etc/dnsmasq.conf`,
+    `rm -f /etc/dnsmasq.d/dnsmasq.conf`,
+    `yes | cp -rf /tmp/dnsmasq.conf /etc/dnsmasq.d/dnsmasq.conf`,
     `rm -f /var/lib/misc/dnsmasq.leases`,
     `systemctl start dnsmasq`,
     `exit`,

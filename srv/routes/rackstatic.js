@@ -19,7 +19,7 @@ const { verifyToken, grantAccess } = require("@middleware/authMiddleware");
 const dotenv = require("dotenv");
 const environment = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
 dotenv.config({ path: `.env.${environment}` });
-const { CLUSTER_USER, CLUSTER_PASS, CLUSTER_CERT } = process.env;
+const { SERVICE_USER, SERVICE_PASS, SERVICE_CERT } = process.env;
 
 const rackDir = "./modules/rack";
 const confDir = `${rackDir}/config`;
@@ -146,7 +146,11 @@ router.post("/apply", verifyToken, grantAccess([1, 2]), async (req, res) => {
     });
     pxe_statics += tagEnd;
 
-    let oldContent = fs.readFileSync("/etc/dnsmasq.conf", "utf8");
+    let oldContent = "";
+    if (fs.existsSync("/etc/dnsmasq.d/dnsmasq.conf")) {
+      oldContent = fs.readFileSync("/etc/dnsmasq.d/dnsmasq.conf", "utf8");
+    }
+
     let modifiedText = oldContent.replace(regex, "");
     modifiedText += pxe_statics;
     fs.writeFileSync("/tmp/dnsmasq.conf", modifiedText);
@@ -154,14 +158,14 @@ router.post("/apply", verifyToken, grantAccess([1, 2]), async (req, res) => {
     const cmds = [
       `sudo su`,
       `systemctl stop dnsmasq`,
-      `rm -f /etc/dnsmasq.conf`,
-      `yes | cp -rf /tmp/dnsmasq.conf /etc/dnsmasq.conf`,
+      `rm -f /etc/dnsmasq.d/dnsmasq.conf`,
+      `yes | cp -rf /tmp/dnsmasq.conf /etc/dnsmasq.d/dnsmasq.conf`,
       `rm -f /var/lib/misc/dnsmasq.leases`,
       `systemctl start dnsmasq`,
     ];
 
     const host = "localhost";
-    result = await ssh2Stream(cmds, host, CLUSTER_USER, CLUSTER_PASS);
+    result = await ssh2Stream(cmds, host, SERVICE_USER, SERVICE_PASS);
     // result = await shellStream(cmds);
 
     return res.status(200).json({ statics: staticData });
