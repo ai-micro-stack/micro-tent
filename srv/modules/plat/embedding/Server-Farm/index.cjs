@@ -46,7 +46,7 @@ async function ModuleHandler(confObj, taskDetails, trackerPath) {
     switch (modelServer.toLowerCase()) {
       case "ollama":
         const taskTracker = getTaskTracker(trackerPath)
-        if (Date.now() - taskTracker.ollama > 86400000) {
+        if (Date.now() - taskTracker.ollama > 86400000/24) {
           await step1Ollma(cluster, serviceAccount);
           await step2Service(cluster, serviceAccount);
           taskTracker.ollama = Date.now();

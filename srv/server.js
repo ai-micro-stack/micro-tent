@@ -30,17 +30,17 @@ const {
   BACKEND_SERVER,
   BACKEND_PORT,
   DEFAULT_STACK,
-  // CLUSTER_USER,
-  // CLUSTER_PASS,
+  SERVICE_USER,
+  SERVICE_PASS,
 } = process.env;
 // ssh2 target server
 const ssh2Config = {
   host: `${BACKEND_SERVER}`,
   port: 22,
-  // username: `${CLUSTER_USER}`,
-  // password: `${CLUSTER_PASS}`,
-  username: process.env.USER ?? process.env.USERNAME,
-  privateKey: readFileSync(os.homedir() + "/.ssh/id_rsa_stack"),
+  username: `${SERVICE_USER}`,
+  password: `${SERVICE_PASS}`,
+  // username: process.env.SERVICE_USER ?? process.env.USERNAME,
+  // privateKey: readFileSync(os.homedir() + "/.ssh/id_rsa_stack"),
 };
 
 // route controls
