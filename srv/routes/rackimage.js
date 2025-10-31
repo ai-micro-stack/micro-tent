@@ -24,8 +24,7 @@ router.post("/mount", verifyToken, grantAccess([1, 2]), (req, res) => {
   try {
     const taskUser = req.user.userId || "unknown";
     const taskData = {
-      // type: "ssh2",
-      type: "shell",
+      type: "ssh2",
       cmd: `./3-pxe-boot-image.sh -i ${itemlist}; exit`,
       cwd: "./srv/modules/rack/pxe/ipxe",
     };
@@ -34,42 +33,6 @@ router.post("/mount", verifyToken, grantAccess([1, 2]), (req, res) => {
     console.log(err);
   }
   return res.status(201).send({ status: "MOUNT_COMPLETE_SUCCESSFULLY" });
-
-  /*
-  try {
-    const mount = spawn(`./3-pxe-boot-image.sh`, ["-i", `${itemlist}`], {
-      // shell: "/bin/bash",
-      // maxBuffer: 2048 * 1024,
-      cwd: `${setupDir}`,
-      // stdio: "pipe",
-      encoding: "utf8",
-    });
-
-    mount.stdout.on("data", (data) => {
-      console.log(`mount stdout: ${data}`);
-    });
-
-    mount.stderr.on("data", (data) => {
-      console.error(`mount stderr: ${data}`);
-    });
-
-    mount.on("close", (code) => {
-      console.log(`mount process exited with code ${code}`);
-      res.status(201).send({ status: "MOUNT_COMPLETE_SUCCESSFULLY" });
-    });
-  } catch (err) {
-    if (err.code) {
-      console.error(err.code);
-      res.status(500).send(`Failed to start image mount: ${err}`);
-      res.end();
-    } else {
-      const { stdout, stderr } = err;
-      console.error({ stdout, stderr });
-      res.status(500).send(`Failed to complete image mount: ${err}`);
-      res.end();
-    }
-  }
-  */
 });
 
 router.post("/remount", verifyToken, grantAccess([1, 2]), (req, res) => {
@@ -77,8 +40,7 @@ router.post("/remount", verifyToken, grantAccess([1, 2]), (req, res) => {
   try {
     const taskUser = req.user.userId || "unknown";
     const taskData = {
-      // type: "ssh2",
-      type: "shell",
+      type: "ssh2",
       cmd: "./3-pxe-boot-image.sh -r Y",
       cwd: "./srv/modules/rack/pxe/ipxe",
     };
@@ -87,42 +49,6 @@ router.post("/remount", verifyToken, grantAccess([1, 2]), (req, res) => {
     console.log(err);
   }
   return res.status(201).send({ status: "MOUNT_COMPLETE_SUCCESSFULLY" });
-
-  /*
-  try {
-    const remount = spawn("./3-pxe-boot-image.sh", ["-r", "Yes"], {
-      // shell: "/bin/bash",
-      // maxBuffer: 2048 * 1024,
-      cwd: `${setupDir}`,
-      // stdio: "pipe",
-      encoding: "utf8",
-    });
-
-    remount.stdout.on("data", (data) => {
-      console.log(`remount stdout: ${data}`);
-    });
-
-    remount.stderr.on("data", (data) => {
-      console.error(`remount stderr: ${data}`);
-    });
-
-    remount.on("close", (code) => {
-      console.log(`remount process exited with code ${code}`);
-      res.status(201).send({ status: "REMOUNT_COMPLETE_SUCCESSFULLY" });
-    });
-  } catch (err) {
-    if (err.code) {
-      console.error(err.code);
-      res.status(500).send(`Failed to start the remount: ${err}`);
-      res.end();
-    } else {
-      const { stdout, stderr } = err;
-      console.error({ stdout, stderr });
-      res.status(500).send(`Failed to complete the remount: ${err}`);
-      res.end();
-    }
-  }
-  */
 });
 
 router.post("/menu", verifyToken, grantAccess([1, 2]), (req, res) => {

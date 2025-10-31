@@ -1,10 +1,10 @@
 // const path = require("path");
 // const { pluginModuleTypes } = require("@consts/constant");
 
-// const dotenv = require("dotenv");
-// const environment = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
-// dotenv.config({ path: `.env.${environment}` });
-// const { CLUSTER_USER, CLUSTER_PASS, CLUSTER_CERT } = process.env;
+const dotenv = require("dotenv");
+const environment = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
+dotenv.config({ path: `.env.${environment}` });
+const { SERVICE_USER, SERVICE_PASS, SERVICE_CERT } = process.env;
 
 // const stack = "rack";
 // const moduleTypes = pluginModuleTypes[`${stack}Plugin`];
@@ -64,9 +64,9 @@ const PopulateRackObject = (curInterface, curSubnet, curPxe) => {
 
     confObject.pxe_dependency = curPxe.ISO_UTILS.split(" ");
 
-    // confObject.serviceAccount.username = `${CLUSTER_USER}`;
-    // confObject.serviceAccount.password = `${CLUSTER_PASS}`;
-    // confObject.serviceAccount.certname = `${CLUSTER_CERT}`;
+    confObject.serviceAccount.username = `${SERVICE_USER}`;
+    confObject.serviceAccount.password = `${SERVICE_PASS}`;
+    confObject.serviceAccount.certname = `${SERVICE_CERT}`;
 
     return { code: 0, data: confObject };
   } catch (err) {

@@ -9,7 +9,6 @@ const Subnet = require("@models/subnet.model");
 const Static = require("@models/static.model");
 const { AddStatics } = require("@utils/stackResource");
 const StackInterface = require("@utils/stackInterface");
-// const { shellStream } = require("@utils/taskShellStream");
 const { parseStaticData } = require("@utils/rackStaticParser");
 const { ssh2Stream } = require("@utils/taskSsh2Stream");
 const ping = require("ping");
@@ -166,7 +165,6 @@ router.post("/apply", verifyToken, grantAccess([1, 2]), async (req, res) => {
 
     const host = "localhost";
     result = await ssh2Stream(cmds, host, SERVICE_USER, SERVICE_PASS);
-    // result = await shellStream(cmds);
 
     return res.status(200).json({ statics: staticData });
   } catch (err) {

@@ -1,8 +1,7 @@
 require("module-alias/register");
 const fs = require("fs");
 const path = require("path");
-// // const { ssh2Stream } = require("@utils/taskSsh2Stream");
-const { shellStream } = require("@utils/taskShellStream");
+const { ssh2Stream } = require("@utils/taskSsh2Stream");
 const { replaceContentBetweenTags } = require("@utils/stringReplaceSeg");
 
 async function step2Config(confObj, sections, replacements) {
@@ -73,10 +72,10 @@ async function step2Config(confObj, sections, replacements) {
     `sudo su`,
     `systemctl stop dnsmasq`,
     `rm -f /etc/dnsmasq.d/dnsmasq.conf`,
-    `yes | cp -rf /tmp/dnsmasq.conf /etc/dnsmasq.d/dnsmasq.conf`,
+    `cp -rf /tmp/dnsmasq.conf /etc/dnsmasq.d/dnsmasq.conf`,
     `rm -f /var/lib/misc/dnsmasq.leases`,
     `systemctl start dnsmasq`,
-    `exit`,
+    // `exit`,
   ];
 
   let cmds = [];
@@ -94,8 +93,7 @@ async function step2Config(confObj, sections, replacements) {
     console.log("###############################################");
     console.log("## shell stream with:: " + node);
     console.log("###############################################");
-    // // result = await ssh2Stream(cmds, node, user.username, user.password);
-    result = await shellStream(cmds);
+    result = await ssh2Stream(cmds, node, user.username, user.password);
     console.log();
   }
 }

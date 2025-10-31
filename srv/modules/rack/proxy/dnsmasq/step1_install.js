@@ -1,7 +1,5 @@
 require("module-alias/register");
-// const { ssh2Stream } = require("@utils/taskSsh2Stream");
-const { shellStream } = require("@utils/taskShellStream");");
-const { shellStream } = require("@utils/taskShellStream");
+const { ssh2Stream } = require("@utils/taskSsh2Stream");
 
 async function step1Install(confObj) {
   const user = confObj.serviceAccount;
@@ -15,7 +13,7 @@ async function step1Install(confObj) {
     `sudo su`,
     // `apt update -y`,
     `apt install dnsmasq -y`,
-    `exit`
+    // `exit`
   ];
 
   cmds = cmds_inst
@@ -31,8 +29,7 @@ async function step1Install(confObj) {
     console.log("###############################################");
     console.log("## ssh2 session with: " + node);
     console.log("###############################################");
-    // result = await ssh2Stream(cmds, node, user.username, user.password);
-    result = await shellStream(cmds);
+    result = await ssh2Stream(cmds, node, user.username, user.password);
     console.log();
   }
 }

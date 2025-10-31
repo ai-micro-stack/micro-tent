@@ -1,6 +1,5 @@
 require("module-alias/register");
-// const { ssh2Stream } = require("@utils/taskSsh2Stream");
-const { shellStream } = require("@utils/taskShellStream");
+const { ssh2Stream } = require("@utils/taskSsh2Stream");
 
 async function step2Config(confObj) {
   const user = confObj.serviceAccount;
@@ -10,8 +9,8 @@ async function step2Config(confObj) {
     `sudo su`,
     `systemctl start ntp`,
     `systemctl enable ntp`,
-    `exit`,
-    `exit`,
+    // `exit`,
+    // `exit`,
   ];
 
   let cmds = [];
@@ -29,8 +28,7 @@ async function step2Config(confObj) {
     console.log("###############################################");
     console.log("## shell stream with: " + node);
     console.log("###############################################");
-    // result = await ssh2Stream(cmds, node, user.username, user.password);
-    result = await shellStream(cmds);
+    result = await ssh2Stream(cmds, node, user.username, user.password);
     console.log();
   }
 }

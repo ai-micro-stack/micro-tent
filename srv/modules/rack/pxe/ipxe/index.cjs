@@ -1,8 +1,7 @@
 require("module-alias/register");
 const fs = require("fs");
 const path = require("path");
-// const { ssh2Stream } = require("@utils/taskSsh2Stream");
-const { shellStream } = require("@utils/taskShellStream");
+const { ssh2Stream } = require("@utils/taskSsh2Stream");
 
 async function pxeIpxe(confObj) {
   console.log("### PXE-IPXE ###");
@@ -20,22 +19,14 @@ async function pxeIpxe(confObj) {
 
   const setupDir = `${rackDir}/pxe/ipxe/`;
 
-  // add a task in user's task queue
+  // process a task in user's task queue
   try {
-    // const taskUser = req.user.userId || "unknown";
-    // const taskData = {
-    //   type: "shell",
-    //   cmd: "./1-pxe-boot-server.sh",
-    //   cwd: "./srv/modules/rack/pxe/ipxe",
-    // };
-
     const cmds_all = [
       // `sudo su`,
       `sudo apt install ${pxeDependencis} -y`,
       `pushd ${setupDir}`,
       `./1-pxe-boot-server.sh`,
       `popd`,
-      `exit`,
     ];
 
     let cmds = [];
@@ -53,8 +44,7 @@ async function pxeIpxe(confObj) {
       console.log("###############################################");
       console.log("## shell stream with:: " + node);
       console.log("###############################################");
-      // result = await ssh2Stream(cmds, node, user.username, user.password);
-      result = await shellStream(cmds);
+      result = await ssh2Stream(cmds, node, user.username, user.password);
       console.log();
     }
   } catch (err) {

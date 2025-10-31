@@ -94,8 +94,7 @@ router.post("/apply", verifyToken, grantAccess([1, 2]), async (req, res) => {
     moduleTypes.forEach((area) => {
       if (taskObj[area].type === "(None)") return;
       const taskData = {
-        // type: "ssh2",
-        type: "shell",
+        type: "ssh2",
         cmd: `node ${rackDir}/${area}/${taskObj[area].type}/index.cjs ${taskPayload}`,
         cwd: `./srv`,
       };
@@ -105,25 +104,6 @@ router.post("/apply", verifyToken, grantAccess([1, 2]), async (req, res) => {
     // save the final working config json
     fs.writeFileSync(WorkConf, JSON.stringify(taskObj));
 
-    // // add a task in user's task queue
-    // try {
-    //   fs.chmodSync(`${setupDir}`, "0755");
-    //   fs.cpSync(`${confDir}`, `${setupDir}/config`, {
-    //     force: true,
-    //     recursive: true,
-    //     preserveTimestamps: true,
-    //   });
-
-    //   const taskUser = req.user.userId || "unknown";
-    //   const taskData = {
-    //     type: "shell",
-    //     cmd: "./1-pxe-boot-server.sh && ./2-pxe-boot-dnsmasq.sh",
-    //     cwd: "./srv/modules/rack/pxe/ipxe",
-    //   };
-    //   AddTask(taskUser, JSON.stringify(taskData));
-    // } catch (err) {
-    //   console.log(err);
-    // }
     return res.status(201).send({ status: "MOUNT_COMPLETE_SUCCESSFULLY" });
   } catch (err) {
     return res.status(500).send(err);
