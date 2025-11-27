@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import getAuthState from "@/utils/getAuthState";
 import Loading from "@/pages/Loading";
 import { Md5 } from "ts-md5";
+import { registerSchema } from "@/utils/validationSchemas";
 
 const { VITE_API_SCHEME, VITE_API_SERVER, VITE_API_PORT } = import.meta.env;
 const urlPort =
@@ -23,10 +24,14 @@ function Register() {
   const [authState, setAuthState] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertState, setAlertState] = useState({ state: 0, message: "" });
-  getAuthState().then(({ data }) => {
-    console.log(JSON.stringify(data));
-    setAuthState(data.state);
-  });
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    getAuthState().then(({ data }) => {
+      console.log(JSON.stringify(data));
+      setAuthState(data.state);
+    });
+  }, []);
 
   useEffect(() => {
     if (authState === "using" && alertState.state === 0)
@@ -48,25 +53,41 @@ function Register() {
 
   const { username, email, password, password2, acknowledge } = formData;
 
-  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) =>
+  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (password !== password2) {
-      console.log("Passwords do not match");
+
+    const validationResult = registerSchema.safeParse(formData);
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err: any) => {
+        if (err.path[0]) errors[err.path[0] as string] = err.message;
+      });
+      setValidationErrors(errors);
+      setAlertState({
+        state: -1,
+        message: Object.values(errors).join(' '),
+      });
+      return;
+    } else if (password !== password2) {
       setAlertState({
         state: -2,
-        message: "Passwords do not match ...",
+        message: "Retype password not match ...",
       });
+      return;
     } else if (!acknowledge) {
-      console.log("Not respond the confirmation");
       setAlertState({
-        state: -3,
-        message:
-          "You have to respond the checkbox to indicate you have the security knowlogy.",
+        state: -2,
+        message: "Not respond the checkbox ...",
       });
+      return;
     } else {
+      // Clear validation errors
+      setValidationErrors({});
       try {
         const newUser = {
           username,
@@ -93,12 +114,13 @@ function Register() {
         }
       } catch (err) {
         console.error(JSON.stringify(err));
-        navigate("/404");
+        // navigate("/404");
       }
     }
   };
 
   if (authState === "") return <Loading />;
+
   return (
     <div className="userregister_wrapper">
       {alertState.state != 0 ? (
@@ -115,9 +137,10 @@ function Register() {
                   navigate("/user-login");
                 } else if (alertState.state === 1) {
                   navigate("/");
-                } else if (alertState.state === -1) {
-                  navigate("/404");
-                }
+                } 
+                // else if (alertState.state < 0) {
+                //   navigate("/register");
+                // }
               }}
               variant="outline-success"
             >
@@ -138,7 +161,11 @@ function Register() {
                 placeholder="Enter username"
                 name="username"
                 onChange={changeHandler}
+                isInvalid={!!validationErrors.username}
               />
+              <Form.Control.Feedback type="invalid">
+                {validationErrors.username}
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Email address</Form.Label>
@@ -148,7 +175,11 @@ function Register() {
                 placeholder="Enter email"
                 name="email"
                 onChange={changeHandler}
+                isInvalid={!!validationErrors.email}
               />
+              <Form.Control.Feedback type="invalid">
+                {validationErrors.email}
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Password</Form.Label>
@@ -157,9 +188,12 @@ function Register() {
                 className="form-control"
                 placeholder="Enter password"
                 name="password"
-                // minLength={6}
                 onChange={changeHandler}
+                isInvalid={!!validationErrors.password}
               />
+              <Form.Control.Feedback type="invalid">
+                {validationErrors.password}
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Retype Password</Form.Label>
@@ -169,7 +203,11 @@ function Register() {
                 placeholder="Retype password"
                 name="password2"
                 onChange={changeHandler}
+                isInvalid={!!validationErrors.password2}
               />
+              <Form.Control.Feedback type="invalid">
+                {validationErrors.password2}
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Check

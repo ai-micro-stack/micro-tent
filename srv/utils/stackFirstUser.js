@@ -4,6 +4,7 @@ const { createUUID } = require("@database/db.utils");
 const { getConfValue } = require("@utils/stackParser");
 const dbTableCheck = require("@utils/dbTableCheck");
 const md5 = require("md5");
+const bcrypt = require("bcrypt");
 
 const stackFirstUser = async ({ username, password, email }) => {
   try {
@@ -15,7 +16,7 @@ const stackFirstUser = async ({ username, password, email }) => {
           "Feature is not avaialble as the first user is created already.",
       };
     }
-    const hashedPassword = md5(password);
+    const hashedPassword = await bcrypt.hash(md5(password), 10);
     const defaultDomain = getConfValue("dhcpDomain") || "localhost";
     const user = {
       uuid: createUUID(),

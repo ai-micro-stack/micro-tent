@@ -6,6 +6,7 @@ const User = require("@models/user.model");
 const { createUUID } = require("@database/db.utils");
 const { getConfValue } = require("@utils/stackParser");
 const md5 = require("md5");
+const bcrypt = require("bcrypt");
 const { verifyToken, grantAccess } = require("@middleware/authMiddleware");
 
 router.get("/roles", async (req, res) => {
@@ -95,12 +96,13 @@ router.post("/create", verifyToken, grantAccess([1, 2]), async (req, res) => {
   //   });
   // }
 
+  const hashedPassword = await bcrypt.hash(md5(password), 10);
   let user = User.build({
     uuid: createUUID(),
     username: username,
     fullname: fullname ? fullname : username,
     email: email ? email : username + "@" + getConfValue("dhcpDomain"),
-    password: md5(password),
+    password: hashedPassword,
     role_id: role_id ? role_id : 0,
     active: active ? active : true,
   });
@@ -132,7 +134,7 @@ router.post("/update", verifyToken, grantAccess([1, 2]), async (req, res) => {
 
   if (req.body.password) {
     console.log(`password updated for: ${user.username}`);
-    user.password = md5(req.body.password);
+    user.password = await bcrypt.hash(md5(req.body.password), 10);
   }
   user.role_id = req.body.role_id;
   user.active = req.body.active;

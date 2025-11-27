@@ -5,6 +5,7 @@ import { useAuth } from "@/components/AuthService";
 import Logo from "@/assets/logo192.png";
 import "@/pages/UserLogin.css";
 import { Md5 } from "ts-md5";
+import { loginSchema } from "@/utils/validationSchemas";
 
 const UserLogin = () => {
   const [inputUsername, setInputUsername] = useState("");
@@ -13,23 +14,32 @@ const UserLogin = () => {
   const [errMsg, setErrMsg] = useState<string[]>([]);
   const [showAlert, setShowAlert] = useState(false);
   const [logining, setLogining] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { axiosInstance, onLogin, onLogout } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLogining(true);
 
-    if (!inputUsername) {
-      setErrMsg(["Please enter your username"]);
+    const validationResult = loginSchema.safeParse({
+      username: inputUsername,
+      password: inputPassword,
+    });
+
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err: any) => {
+        if (err.path[0]) errors[err.path[0] as string] = err.message;
+      });
+      setValidationErrors(errors);
+      setErrMsg(Object.values(errors));
       setShowAlert(true);
+      setLogining(false);
       return;
     }
 
-    if (!inputPassword) {
-      setErrMsg(["Please enter your password"]);
-      setShowAlert(true);
-      return;
-    }
+    // Clear validation errors
+    setValidationErrors({});
 
     axiosInstance
       .post("/authlogin/login", {
@@ -113,8 +123,12 @@ const UserLogin = () => {
             value={inputUsername}
             placeholder="Username"
             onChange={(e) => setInputUsername(e.target.value)}
+            isInvalid={!!validationErrors.username}
             required
           />
+          <Form.Control.Feedback type="invalid">
+            {validationErrors.username}
+          </Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-2 d-flex" controlId="password">
           <Form.Label className="col-sm-3">Password</Form.Label>
@@ -123,8 +137,12 @@ const UserLogin = () => {
             value={inputPassword}
             placeholder="Password"
             onChange={(e) => setInputPassword(e.target.value)}
+            isInvalid={!!validationErrors.password}
             required
           />
+          <Form.Control.Feedback type="invalid">
+            {validationErrors.password}
+          </Form.Control.Feedback>
         </Form.Group>
         <Form.Group className="mb-2" controlId="checkbox">
           <Form.Check

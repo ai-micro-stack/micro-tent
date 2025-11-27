@@ -19,10 +19,6 @@ const urlPort =
     : `:${VITE_API_PORT}`;
 const backendPlat = `${VITE_API_SCHEME}://${VITE_API_SERVER}${urlPort}`;
 
-// function delay(ms: number) {
-//   return new Promise((resolve) => setTimeout(resolve, ms));
-// }
-
 type AuthContext = {
   axiosInstance: AxiosInstance;
   accessToken?: string | null;
@@ -68,12 +64,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
             storeRefreshToken(authData.refreshToken, null);
             setAccessToken(authData.accessToken);
             setCurrentUser(authData.user);
-            // setErrMsg([]);
           } else {
             storeRefreshToken("", false);
             handleLogout();
             navigate("/user-login");
-            // setErrMsg([res.data.message]);
           }
         });
       } catch {
@@ -97,9 +91,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   axiosInstance.interceptors.request.use(
     function (config: InternalAxiosRequestConfig) {
       if (
-        window.location.href.endsWith("/register") ||
-        window.location.href.endsWith("/login") ||
-        window.location.href.endsWith("/fetch") ||
+        location.pathname === "/register" ||
+        location.pathname === "/user-login" ||
+        location.pathname === "/fetch" ||
         config.headers.get("Authorization")
       )
         return config;
@@ -110,7 +104,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         navigate("/user-login");
       }
 
-      config.headers.set("Authorization", `Bearer ${accessToken}`);
+      config.headers.set("Authorization", `Bearer ${token}`);
       return config;
     },
     function (error: AxiosError) {
@@ -121,18 +115,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // http response interceptor
   axiosInstance.interceptors.response.use(
     function (response: AxiosResponse) {
-      // const { accessToken, onLogin } = useAuth();
       if (
-        !window.location.href.endsWith("/user-login") &&
+        location.pathname !== "/user-login" &&
         (response.status === 401 || response.status === 403)
       ) {
         handleLogout();
-        // fetchAccessToken();
-        // navigate("/user-login");
-        // delay(1000);
       }
       if (
-        window.location.href.endsWith("/fetch") &&
+        location.pathname === "/fetch" &&
         (response.status === 401 || response.status === 403)
       ) {
         handleLogout();
@@ -141,20 +131,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return response;
     },
     function (error: AxiosError) {
-      // if (accessToken && error.response.status === 401) {
-      //   // onLogout(); // sets currentUser logout if accessToken expired
-      //   navigate("/user-login");
-      //   // fetchAccessToken();
-      //   delay(1000);
-      // }
-      if (window.location.href.endsWith("/fetch")) {
+      if (location.pathname.endsWith("/fetch")) {
         handleLogout();
-        // navigate("/user-login");
       }
-      // throw error;
       return Promise.reject(error);
     }
-    // [accessToken]
   );
 
   useEffect(

@@ -1,7 +1,17 @@
 export function fetchRefreshToken(): string | null {
   const refreshToken =
     sessionStorage.getItem("stack.auth") || localStorage.getItem("stack.auth");
-  return refreshToken ? JSON.parse(refreshToken) : null;
+  if (refreshToken) {
+    try {
+      return JSON.parse(refreshToken);
+    } catch {
+      // Invalid JSON, remove corrupted token
+      localStorage.removeItem("stack.auth");
+      sessionStorage.removeItem("stack.auth");
+      return null;
+    }
+  }
+  return null;
 }
 
 export function storeRefreshToken(

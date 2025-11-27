@@ -2,8 +2,6 @@ import {
   Container,
   Row,
   Button,
-  // OverlayTrigger,
-  // Tooltip,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthService";
@@ -16,9 +14,11 @@ function HomePage() {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState("");
 
-  getAuthState().then(({ data }) => {
-    setAuthState(data.state);
-  });
+  useEffect(() => {
+    getAuthState().then(({ data }) => {
+      setAuthState(data.state);
+    });
+  }, []);
 
   useEffect(
     () => {
@@ -48,7 +48,7 @@ function HomePage() {
                 width="1600"
                 height="840"
                 preserveAspectRatio="none"
-                href="hci.png"
+                href="/hci.png"
                 id="hci"
               />
             </g>

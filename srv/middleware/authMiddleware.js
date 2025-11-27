@@ -6,7 +6,7 @@ dotenv.config({ path: `.env.${environment}` });
 const { JWT_SECRET_KEY, DEBUG_MODE } = process.env;
 
 function verifyToken(req, res, next) {
-  if (DEBUG_MODE) next();
+  if (DEBUG_MODE) return next();
   const headerAuth = req.header("Authorization");
   if (!headerAuth)
     return res.status(401).json({ error: "No authorization header." });
@@ -25,8 +25,8 @@ function verifyToken(req, res, next) {
 }
 
 function grantAccess(requiredRoles) {
-  if (DEBUG_MODE) next();
   return (req, res, next) => {
+    if (DEBUG_MODE) return next();
     const roleId = req.user.roleId;
     if (requiredRoles && !requiredRoles.includes(roleId)) {
       console.log("Access Denied! Required Roles: ");

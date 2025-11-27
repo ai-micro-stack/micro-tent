@@ -2,20 +2,23 @@ import type { NavLinkRenderProps } from "react-router";
 import { Routes, Route, NavLink } from "react-router";
 import { Container, Row, Col, Navbar, Nav, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import { AuthProvider, useAuth } from "@/components/AuthService";
 import { storeRefreshToken } from "@/utils/refreshToken";
 import { PrivateRoute } from "@/components/PrivateRoute";
-import HomePage from "@/pages/HomePage";
-import TentResource from "@/pages/TentResource";
-import TentPlanner from "@/pages/TentPlanner";
-import TentBuilder from "@/pages/TentBuilder";
-import TentClusters from "@/pages/TentClusters";
-import TentPlugin from "@/pages/TentPlugin";
-import TeamMember from "@/pages/TeamMember";
-import AboutUs from "@/pages/AboutUs";
-import UserProfile from "@/pages/UserProfile";
-import UserLogin from "@/pages/UserLogin";
-import Register from "@/pages/UserRegister";
+
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const TentResource = lazy(() => import("@/pages/TentResource"));
+const TentPlanner = lazy(() => import("@/pages/TentPlanner"));
+const TentBuilder = lazy(() => import("@/pages/TentBuilder"));
+const TentClusters = lazy(() => import("@/pages/TentClusters"));
+const TentPlugin = lazy(() => import("@/pages/TentPlugin"));
+const TeamMember = lazy(() => import("@/pages/TeamMember"));
+const AboutUs = lazy(() => import("@/pages/AboutUs"));
+const UserProfile = lazy(() => import("@/pages/UserProfile"));
+const UserLogin = lazy(() => import("@/pages/UserLogin"));
+const Register = lazy(() => import("@/pages/UserRegister"));
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 
@@ -29,16 +32,14 @@ const Navigation = () => {
   const navigate = useNavigate();
   return (
     <Navbar
-      // bg="dark"
       bg="primary"
       data-bs-theme="dark"
-      // sticky="top"
       className="nav"
     >
       <Container>
         <Navbar.Brand>
           <img
-            src="favicon.ico"
+            src="/favicon.ico"
             width="28"
             height="28"
             className="d-inline-block align-bottom me-2"
@@ -94,7 +95,7 @@ const Navigation = () => {
           <Button
             style={{
               backgroundColor: "transparent",
-              backgroundImage: "url('./profile.png')",
+              backgroundImage: "url('/profile.png')",
               backgroundSize: "cover",
               width: "40px",
               height: "40px",
@@ -107,7 +108,6 @@ const Navigation = () => {
         )}
         {accessToken ? (
           <Button
-            // className="btn btn-primary position-absolute end-50 translate-middle-x"
             className="float-end"
             onClick={(e) => {
               e.preventDefault();
@@ -120,7 +120,6 @@ const Navigation = () => {
           </Button>
         ) : (
           <Button
-            // className="btn btn-primary position-absolute end-50 translate-middle-x"
             className="float-end"
             onClick={(e) => {
               e.preventDefault();
@@ -142,9 +141,9 @@ const App = () => {
         <Col>
           <AuthProvider>
             <Navigation />
-            <Routes>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
               <Route index element={<HomePage />} />
-              {/* <Route path="tent-resource" element={<TentResource />} /> */}
               <Route
                 path="tent-resource"
                 element={
@@ -153,7 +152,6 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
-              {/* <Route path="cluster-builder" element={<TentResource />} /> */}
               <Route
                 path="tent-planner"
                 element={
@@ -162,7 +160,6 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
-              {/* <Route path="cluster-builder" element={<TentResource />} /> */}
               <Route
                 path="tent-builder"
                 element={
@@ -171,7 +168,6 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
-              {/* <Route path="tent-clusters" element={<TentClusters />} /> */}
               <Route
                 path="tent-clusters"
                 element={
@@ -180,7 +176,6 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
-              {/* <Route path="tent-plugin" element={<TentPlugin />} /> */}
               <Route
                 path="tent-plugin"
                 element={
@@ -189,7 +184,6 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
-              {/* <Route path="team-user" element={<TeamMember />} /> */}
               <Route
                 path="team-user"
                 element={
@@ -198,7 +192,6 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
-              {/* <Route path="user-profile" element={<UserProfile />} /> */}
               <Route
                 path="user-profile"
                 element={
@@ -211,7 +204,8 @@ const App = () => {
               <Route path="user-login" element={<UserLogin />} />
               <Route path="register" element={<Register />} />
               <Route path="*" element={<p>There's nothing here: 404!</p>} />
-            </Routes>
+              </Routes>
+            </Suspense>
           </AuthProvider>
         </Col>
       </Row>

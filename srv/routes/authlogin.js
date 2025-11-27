@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("@models/user.model");
 const md5 = require("md5");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const dbTableCheck = require("@utils/dbTableCheck");
@@ -46,14 +47,25 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res, next) => {
   try {
     const { username, password } = req.body;
-    const hashedPassword = await md5(password);
     const user = await User.findOne({
-      where: { username, password: hashedPassword, active: 1 },
+      where: { username, active: 1 },
     });
     if (!user) {
       return res.status(401).json({ error: "Authentication failed" });
     }
-    const passwordMatch = user.password === md5(password);
+    let passwordMatch = false;
+    if (user.password.startsWith('$2b$')) {
+      // bcrypt hash
+      passwordMatch = await bcrypt.compare(md5(password), user.password);
+    } else {
+      // legacy MD5 hash
+      passwordMatch = user.password === md5(password);
+      if (passwordMatch) {
+        // rehash with bcrypt
+        const newHash = await bcrypt.hash(md5(password), 10);
+        await User.update({ password: newHash }, { where: { uuid: user.uuid } });
+      }
+    }
     if (!passwordMatch) {
       return res.status(401).json({ error: "Authentication failed" });
     }
